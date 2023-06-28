@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>PDF 文档关键字搜索</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+    <script type="text/javascript" src="/js/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/js/template.js"></script>
+    <script type="text/javascript" src="/eel.js"></script>
+<script type="text/javascript">
+    function go_search(){
+	    $("#search_area").show();
+	    $("#list_area").hide();
+	}
+	function go_list(){
+	    $("#search_area").hide();
+	    $("#list_area").show();
+	}
+
+    function js_search_callback(){
+        var html = template(document.getElementById('search-tpl').innerHTML,{});
+        document.getElementById('search_area').innerHTML = html;
+        go_search();
+    }
+
+
+    function search(){
+        var keyword = $("#keyword").val();
+        var pdfpath = $("#pdfpath").val();
+        if(keyword == ''){
+            alert("请填写关键字");
+         retrun;
+        }
+        if(pdfpath == ''){
+            alert("请点击选择目录");
+         retrun;
+        }
+        var data = {"keyword":keyword,"pdfpath":pdfpath};
+        eel.pysearch(data);
+    }
+
+    eel.expose(js_list_callback);
+    function js_list_callback(files){
+        var html = template(document.getElementById('list-tpl').innerHTML,files);
+        document.getElementById('list_area').innerHTML = html;
+        go_list();
+    }
+    function newWindow(target) {
+        eel.new_window(target);
+    }
+    async function getFolder() {
+    var dosya_path = await eel.btn_ResimyoluClick()();
+	if (dosya_path) {
+	    $("#pdfpath").val(dosya_path);
+		console.log(dosya_path);
+	}
+
+
+
+}
+
+</script>
+
+
+</head>
+<body>
+<!--搜索展现区-->
+<div id="search_area">
+</div>
+<div id="list_area">
+</div>
+<!--搜索模板-->
+<script id="search-tpl" type="text/html">
+    <div>
+<form role="form">
+  <div class="form-group">
+    <label for="keyword">关键字</label>
+    <input type="text" class="form-control" id="keyword" placeholder="请输入关键字，多个关键字使用空格隔开，限制最多 3 个关键字">
+  </div>
+    <div class="form-group">
+    <label for="pdfpath">选择目录：</label>
+    <input type="text" class="form-control" id="pdfpath" placeholder="点击选择 PDF 目录" onclick="getFolder();">
+  </div>
+  <button type="button" class="btn btn-default" onclick="search();">搜索</button>
+</form>
+        </div>
+</script>
+<!--列表模板-->
+<script id="list-tpl" type="text/html">
+   <div>
+    <div><button type="button" class="btn btn-default" onclick="go_search();" >返回</button></div>
+<div>
+    <table class="table">
+    <thead>
+        <tr>
+            <td>文件名称</td>
+        </tr>
+    </thead>
+<tbody>
+ <% for(i in data){ %>
+     <tr>
+         <td><a target="_blank" onclick="newWindow('file:///<%=data[i]["pdfpath"]%>')"><%=data[i]['file_name']%></a></td>
+     </tr>
+ <% } %>
+</tbody>
+</table>
+    </div>
+       </div>
+</script>
+<script type="text/javascript">
+    js_search_callback();
+</script>
+</body>
+</html>
