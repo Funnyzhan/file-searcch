@@ -1,0 +1,70 @@
+{% extends "admin_base.html" %}
+{% block js %}
+ <script type="text/javascript">
+
+        async function js_select_dir() {
+            var select_path = await eel.select_dir()();
+            if (select_path) {
+                $("#inputdir").val(select_path);
+                console.log(select_path);
+            }
+        }
+
+        async function start_file_write() {
+            var inputdir = $("#inputdir").val();
+            var submitFlag = true;
+            if (inputdir == '') {
+                alert("选择文件目录");
+                submitFlag = false;
+                return submitFlag;
+            }
+             var data = {"dirpath":inputdir};
+            $("#progress_bar").css("width","0%");
+            await eel.pywritedb(data);
+        }
+
+        eel.expose(js_init_process_callback);
+        function js_init_process_callback(data){
+        $("#progress_bar").attr("aria-valuemax",data["data"]);
+        $("#progress_bar").text("总文件数:" + data["data"]);
+    }
+            eel.expose(js_process_callback);
+        function js_process_callback(data){
+            var wd = data["data"]/ parseFloat($("#progress_bar").attr("aria-valuemax")) * 100;
+        $("#progress_bar").css("width",wd + "%");
+        var files = parseInt($("#progress_bar").attr("aria-valuemax"))
+        $("#progress_bar").text("总文件数: " + files + "  已处理: " + data["data"]);
+    }
+    </script>
+
+{% endblock %}
+{% block content %}
+<div class="container">
+    <br>
+<form class="container-fluid justify-content-start">
+        <div class="form-group">
+            <label for="inputdir">选择文件所在目录:</label>
+            <input type="text" class="form-control" id="inputdir" placeholder="单击这里选择目录" value="" name="inputdir"
+                   onclick="js_select_dir();">
+        </div>
+        <div class="form-group">
+            <label for="startbut"></label>
+            <br>
+            <button type="button" class="form-control btn btn-outline-success"  id="startbut" name="startbut" onclick="start_file_write();">开始导入数据库</button>
+        </div>
+    </form>
+    </div>
+<br>
+<br>
+<div class="progress" style="height: 2em">
+  <div id="progress_bar" class="progress-bar progress-bar-success" role="progressbar" style="width:0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+</div>
+</div>
+
+<!--<script>-->
+<!--    $(function (){-->
+<!--      $("#progress_div").hide();-->
+<!--    })-->
+<!--</script>-->
+
+{% endblock %}
