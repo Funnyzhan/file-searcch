@@ -1,5 +1,0 @@
-#生成exe
-python -m eel app.py web --onefile --noconsole
-
-
-python -m eel app.py web --onefile --noconsole --add-data Application;Application
