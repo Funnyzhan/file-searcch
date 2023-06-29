@@ -46,3 +46,68 @@
 		},
 	})
 }
+</script>
+{% endblock %}
+{% block content %}
+<div class="container">
+    <br>
+    <div class="row">
+        <div class="col-lg-12">
+            <form class="bs-example bs-example-form" role="form" method="post" action="/query">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="kw" id="kw" {% if kw is defined %} value="{{kw}}"{%endif%}>&nbsp;&nbsp;&nbsp;
+                    <span class="input-group-btn">
+                        <button class="btn btn-success" type="submit">查询</button>
+                    </span>&nbsp;&nbsp;&nbsp;
+                    <span class="input-group-btn">
+                        <button class="btn btn-success" type="button" onclick="download()">保存</button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </form>
+        </div>
+    </div>
+
+</div>
+{% if data is defined %}
+<div class="container">
+    <div class="row">
+        <table class="table table-hover" style="width: 100%">
+  <thead>
+    <tr>
+        <th style="width: 2%"></th>
+<!--      <th style="width: 5%">页号</th>-->
+      <th style="width: 5%">行号</th>
+      <th>内容</th>
+    </tr>
+  </thead>
+  <tbody>
+  {%for k in data.keys()%}
+  <tr><td></td><td colspan="2">{{k}}</td></tr>
+    {%for i in data[k]%}
+    <tr>
+      <td><div class="checkbox">
+    <label>
+      <input type="checkbox" name="quotation_type" value="{{i['_id']}}">
+    </label>
+  </div></td>
+<!--      <td>{{i["page"]}}</td>-->
+      <td>{{i["line"]}}</td>
+      <td>{{i["content"]}}</td>
+    </tr>
+    {%endfor%}
+   {%endfor%}
+
+  </tbody>
+</table>
+    </div>
+</div>
+{%endif%}
+ <script>
+
+
+  </script>
+{% endblock %}
