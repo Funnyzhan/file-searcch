@@ -30,3 +30,21 @@ def create_mongo_bat(curr_path):
             f.writelines("mongod --bind_ip 0.0.0.0 --maxConns 1000 --dbpath  %s\mongo\data\db" % curr_path)
             f.write("\n")
     return run_path
+ef create_mongo_client_bat(curr_path):
+    run_path = "%s//%s" % (curr_path, "mongo_client.bat")
+    if not os.path.exists(run_path):
+        disk = curr_path[:2]
+        with open("mongo_client.bat","w",encoding="utf-8") as f:
+            f.writelines(disk)
+            f.write("\n")
+            f.writelines("cd %s//mongo//bin" % curr_path)
+            f.write("\n")
+            f.writelines("mongo.exe")
+            f.write("\n")
+    return run_path
+
+def run_cmd(cmdstr):
+    # _sp = subprocess.Popen(cmdstr,shell=True)
+    pyautogui.hotkey('winleft', 'r')
+    pyautogui.typewrite(cmdstr, 0.001)
+    pyautogui.press("enter")
