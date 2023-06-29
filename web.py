@@ -140,3 +140,164 @@ def select_dir():
     root.wm_attributes('-topmost', 1)
     folder = filedialog.askdirectory()
     return folder
+
+@eel.expose
+def pywritedb(data):
+	'''
+	搜索 pdf docx文档
+	:param data: {"dirpath":"当前所选路径"}
+	:return:
+	'''
+	print(json.dumps(data,indent=4,ensure_ascii=False))
+	pdf,doc = list_file(data["dirpath"])
+	filenum = len(pdf) + len(doc)
+	print(filenum)
+	eel.js_init_process_callback({"data": filenum})
+	mc = mongo("mongodb://127.0.0.1:27017").getclient("ctg")
+	process_filenum = 0
+	for f in doc:
+		try:
+			texts = readdoc_content(f)
+			for p in texts:
+				p["path"] = f
+				p["filename"] = f[f.rfind('\\') + 1:]
+				mc["pdfdoc"].insert_one(p)
+		except:
+			# traceback.print_exc()
+			pass
+		process_filenum += 1
+		print(process_filenum)
+		eel.js_process_callback({"data": process_filenum})
+	for f in pdf:
+		try:
+			texts = readpdf_content(f)
+			for p in texts:
+				p["path"] = f
+				p["filename"] = f[f.rfind('\\') + 1:]
+				mc["pdfdoc"].insert_one(p)
+		except:
+			# traceback.print_exc()
+			pass
+		process_filenum += 1
+		print(process_filenum)
+		eel.js_process_callback({"data": process_filenum})
+
+	# print(json.dumps(files, indent=4, ensure_ascii=False))
+
+
+def init_sort_index():
+	'''
+	初始化数据库索引
+	:return:
+	'''
+	mc = mongo("mongodb://127.0.0.1:27017").getclient("ctg")
+	# mc["pdfdoc"].create_index([("content", pymongo.TEXT)]) 全文索引
+	mc["pdfdoc"].create_index([("path", pymongo.ASCENDING),("page", pymongo.ASCENDING),("line", pymongo.ASCENDING)])
+
+def query_by_keyword(keyword):
+	'''
+	根据关键字查询
+	:param keyword:  关键字
+	:return:
+	'''
+	data = []
+	mc = mongo("mongodb://127.0.0.1:27017").getclient("ctg")
+	# for i in mc["pdfdoc"].find({"$text":{"$search":keyword}}).sort([("path",1),("page",1),("line",1)]):
+	for i in mc["pdfdoc"].find({"content": {"$regex": re.compile(keyword)}}).sort([("path", 1), ("page", 1), ("line", 1)]):
+		i["_id"] = str(i["_id"])
+		i["path"] = i["path"].replace("\\","/")
+		i["content"] = i["content"].replace(keyword,"<font color='red'>%s</font>" % keyword)
+		data.append(i)
+	return data
+
+
+
+@app.route('/file_write_db',method='GET')
+def route_file_write_db():
+    '''
+    文件写入数据库
+    :return:
+    '''
+    template = env.get_template('web_writedb.html')
+    return template.render()
+
+@app.route('/query_by_keyword',method='GET')
+def route_query_by_keyword():
+    '''
+    查询页面
+    :return:
+    '''
+    template = env.get_template('web_query.html')
+    return template.render()
+
+@app.route('/query',method='POST')
+def route_query():
+    '''
+    查询
+    :return:
+    '''
+    kw = bottle.request.forms.kw
+    data = query_by_keyword(kw)
+    dmap = {}
+    for i in data:
+	    if i["path"] in dmap:
+		    dmap[i["path"]].append(i)
+	    else:
+		    dmap[i["path"]] = [i]
+    template = env.get_template('web_query.html')
+    return template.render(data=dmap, kw=kw)
+
+
+@app.route('/download', method='POST')
+def route_download():
+	'''
+	下载选择
+	:return:
+	'''
+	headers = dict()
+	kw = bottle.request.forms.kw
+	print(kw)
+	ids = bottle.request.forms.ids
+	ids = json.loads(ids)
+	body = ""
+	mc = mongo("mongodb://127.0.0.1:27017").getclient("ctg")
+	for i in ids.keys():
+		m = mc["pdfdoc"].find_one({"_id": ObjectId(ids[i])}, {"_id": 0})
+		body += "%s\n" % m["content"]
+	headers['Content-Type'] = 'application/octet-stream'
+	headers['chart'] = 'application/octet-stream'
+	headers['Content-Disposition'] = 'attachment; filename=%s.txt' % quote(kw)
+	return HTTPResponse(body, **headers)
+
+
+@app.route('/js/<path>')
+def js(path):
+    return static_file(path, root='%s/web/js/' % root)    #返回js文件，js文件在该目录的上级目录下的js文件夹下
+
+@app.route('/css/<path>')
+def css(path):
+    return static_file(path, root='%s/web/css/' % root)
+
+@app.route("/",method="GET")
+def route_index():
+	template = env.get_template('web_index.html')
+	return template.render()
+
+app.run(host="127.0.0.1",port=8080)
+
+# curr_path = os.getcwd()
+# sys.path.append(curr_path)
+# sys.path.append("%s/bin" % curr_path)
+# eel.init("web")
+# eel.start('/templates/index.html', app=app, jinja_templates=templates_dir, disable_cache=True)
+
+# if __name__ == "__main__":
+# 	pass
+# for i in readpdf_content("data/1.pdf"):
+# 	print(i)
+# for i in readdoc_content("data/PDF图文识别提取需求.docx"):
+# 	print(i)
+# print(list_file(r"data"))
+# 	writedb("data")
+# 	init_sort_index()
+# 	print(json.dumps(query_by_keyword("经济性"),indent=4,ensure_ascii=False))
