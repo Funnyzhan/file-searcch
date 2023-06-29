@@ -1,0 +1,48 @@
+{% extends "admin_base.html" %}
+{% block js %}
+<script>
+    function download(){
+
+    quotation = new Array();
+    $("input:checkbox[name='quotation_type']:checked").each(function(){
+         quotation.push($(this).val());
+    });
+    var json = {};
+    for (var i = 0; i < quotation.length; i++) {
+         json[i] = quotation[i];
+    }
+    var myJson = JSON.stringify(json);
+       download_file(myJson);
+    }
+    function download_file(ids) {
+	$.ajax({
+		url: "/download",
+		method: "post",
+		beforeSend: function (request) {
+			request.setRequestHeader("token", sessionStorage.getItem('token'));
+		},
+		data: {
+			ids: ids,
+            kw:$("#kw").val(),
+		},
+		success: function (result, state, xhr) {
+			let fileName = xhr.getResponseHeader('Content-Disposition').split(';')[1].split('=')[1].replace(/\"/g, '')
+			let type = xhr.getResponseHeader("content-type")
+			let blob = new Blob([result], { type: type })
+			if ('download' in document.createElement('a')) {
+				let link = document.createElement("a");
+				link.download = fileName;
+				link.style.display = "none"
+				link.href = URL.createObjectURL(blob);
+				document.body.appendChild(link);
+				link.click();
+				URL.revokeObjectURL(link.href);
+				document.body.removeChild(link);
+			} else {
+				if (window.navigator.msSaveOrOpenBlob) {
+					window.navigator.msSaveOrOpenBlob(blob, fileName)
+				}
+			}
+		},
+	})
+}
