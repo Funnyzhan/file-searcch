@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>文件检索系统</title>
+
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/css/bootstrap-treeview.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/bootstrap-treeview.min.js"></script>
+    <script src="/js/popper.min.js"></script>
+<!--   <script type="text/javascript" src="/web/eel.js"></script>-->
+    {% block js %}
+    {% endblock %}
+</head>
+<body>
+  <nav class="menu" tabindex="0">
+     <br><br>
+    <div class="smartphone-menu-trigger"></div>
+    <ul>
+        <li tabindex="0" class="icon-customers"> <a style="color:white; text-decoration:none;" href="/query_by_keyword"><span>关键词查询</span></a></li>
+<!--      <li tabindex="0" class="icon-dashboard"> <a style="color:white; text-decoration:none;" href="/file_write_db"><span>文件入库</span></a></li>-->
+
+    </ul>
+  </nav>
+
+  <main>
+
+
+    <!-- nav start -->
+    <div class="bs-example">
+      <nav class="navbar navbar-expand-md  navbar-dark fixed-top" style="background:#337AB7;">
+        <a class="navbar-brand">&nbsp;&nbsp;&nbsp;文件检索系统</a>
+        <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
+          <div class="navbar-nav" style=" margin-left: 90%;">
+
+<!--            <a href="/logout" class="nav-item nav-link">退出</a>-->
+          </div>
+        </div>
+      </nav>
+    </div>
+    <!-- nav end -->
+    <br><br>
+
+    <!-- content start-->
+    {% block content %}
+    {% endblock %}
+    <!-- content end-->
+
+    <br><br><br><br>
+    
+
+  </main>
+  <!--
+  developed By : sumit kumar
+  facebook : fb.com/sumit.luv
+  youtube : youtube.com/lazycoders
+  -->
+
+</body>
+
+</html>
