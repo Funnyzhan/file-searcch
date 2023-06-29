@@ -39,3 +39,32 @@
 
 {% endblock %}
 {% block content %}
+<div class="container">
+    <br>
+<form class="container-fluid justify-content-start">
+        <div class="form-group">
+            <label for="inputdir">选择文件所在目录:</label>
+            <input type="text" class="form-control" id="inputdir" placeholder="单击这里选择目录" value="" name="inputdir"
+                   onclick="js_select_dir();">
+        </div>
+        <div class="form-group">
+            <label for="startbut"></label>
+            <br>
+            <button type="button" class="form-control btn btn-outline-success"  id="startbut" name="startbut" onclick="start_file_write();">开始导入数据库</button>
+        </div>
+    </form>
+    </div>
+<br>
+<br>
+<div class="progress" style="height: 2em">
+  <div id="progress_bar" class="progress-bar progress-bar-success" role="progressbar" style="width:0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+</div>
+</div>
+
+<!--<script>-->
+<!--    $(function (){-->
+<!--      $("#progress_div").hide();-->
+<!--    })-->
+<!--</script>-->
+
+{% endblock %}
